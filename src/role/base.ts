@@ -28,7 +28,7 @@ const roles: RoleFunctionMap = {
                 return false;
             }
             if(!creep.memory.isInit){
-                creep.room.memory.sources[data.sourceId].push(creep.id);
+                creep.room.memory.sources[data.sourceId].push(creep.name);
                 creep.memory.isInit = true;
             }
             if(creep.harvest(source) == ERR_NOT_IN_RANGE){

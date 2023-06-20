@@ -3299,7 +3299,7 @@ const roles = {
                 return false;
             }
             if (!creep.memory.isInit) {
-                creep.room.memory.sources[data.sourceId].push(creep.id);
+                creep.room.memory.sources[data.sourceId].push(creep.name);
                 creep.memory.isInit = true;
             }
             if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
@@ -3535,8 +3535,8 @@ class RoomExtention extends Room {
         if (!this.memory.isInit) {
             this.initMemory();
         }
-        //Count Screeps every 300 ticks to avoid mistake
-        if (Game.time % 300 == 0) {
+        //Count Screeps every 100 ticks to avoid mistake
+        if (Game.time % 100 == 0) {
             this.countScreeps();
         }
         //Run Spawn
@@ -3554,12 +3554,8 @@ class RoomExtention extends Room {
         });
     }
     initMemory() {
-        this.memory.sources = {};
-        this.find(FIND_SOURCES).forEach(source => {
-            if (source) {
-                this.memory.sources[source.id] = [];
-            }
-        });
+        this.countScreeps();
+        this.initSourceMemory();
         this.memory.spawnsId = this.find(FIND_MY_SPAWNS).map(spawn => spawn.id);
         //Init BotStat
         this.memory.roomConfig = {
@@ -3571,7 +3567,6 @@ class RoomExtention extends Room {
                 soldier: [],
             }
         };
-        this.countScreeps();
         this.memory.isInit = true;
     }
     //Count the number of screeps of each role in the room
@@ -3593,6 +3588,24 @@ class RoomExtention extends Room {
         console.log("builder: " + this.memory.roomConfig.BotsStat.builder.length);
         console.log("claimer: " + this.memory.roomConfig.BotsStat.claimer.length);
         console.log("soldier: " + this.memory.roomConfig.BotsStat.soldier.length);
+    }
+    initSourceMemory() {
+        this.memory.sources = {};
+        this.find(FIND_SOURCES).forEach(source => {
+            if (source) {
+                this.memory.sources[source.id] = [];
+            }
+        });
+        //add harvesters to sources memory
+        this.memory.roomConfig.BotsStat.harvester.forEach(creepName => {
+            const creep = Game.creeps[creepName];
+            if (creep) {
+                const sourceId = creep.memory.data.sourceId;
+                if (sourceId) {
+                    this.memory.sources[sourceId].push(creepName);
+                }
+            }
+        });
     }
 }
 
